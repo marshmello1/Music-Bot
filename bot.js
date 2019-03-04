@@ -32,7 +32,7 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
   } else if(newUserChannel === undefined){
 
     // User leaves a voice channel
-      if(oldMember.id === '346343289861046273'){
+      if(oldMember.id === '498378677512437762'){
           return console.log("BOT");
       }
       else{
@@ -54,78 +54,92 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
   }
 })
 
-
+var prefix = "a";
+var adminprefix = 'a'
 client.on('message', async msg => { // eslint-disable-line
-		if (msg.author.bot) return undefined;
-		//by ,$ ReBeL ء , ??#4777 'CODES SERVER'
-		if (!msg.content.startsWith(prefix)) return undefined;
-		const args = msg.content.split(' ');
-		const searchString = args.slice(1).join(' ');
-		//by ,$ ReBeL ء , ??#4777 'CODES SERVER'
-		const url = args[1] ? args[1].replace(/<(.+)>/g, '$1') : '';
-		const serverQueue = queue.get(msg.guild.id);
-	//by ,$ ReBeL ء , ??#4777 'CODES SERVER'
-		let command = msg.content.toLowerCase().split(" ")[0];
-		command = command.slice(prefix.length)
-	//by ,$ ReBeL ء , ??#4777 'CODES SERVER'
-		if (command === `play`) {
-			const voiceChannel = msg.member.voiceChannel;
-			if (!voiceChannel) return msg.channel.send('يجب توآجد حضرتك بروم صوتي .');
-			const permissions = voiceChannel.permissionsFor(msg.client.user);
-			if (!permissions.has('Connect')) {
-				//by ,$ ReBeL ء , ??#4777 'CODES SERVER'
-				return msg.channel.send('لا يتوآجد لدي صلاحية للتكلم بهذآ الروم');
-			}//by ,$ ReBeL ء , ??#4777 'CODES SERVER'
-			if (!permissions.has('SPEAK')) {
-				return msg.channel.send('لا يتوآجد لدي صلاحية للتكلم بهذآ الروم');
-			}//by ,$ ReBeL ء , ??#4777 'CODES SERVER'
+    if (msg.author.bot) return undefined;
+    if (!msg.content.startsWith(PREFIX)) return undefined;
+    const args = msg.content.split(' ');
+    const searchString = args.slice(1).join(' ');
+    const url = args[1];
+    const serverQueue = queue.get(msg.guild.id);
+    
+    if(msg.content.startsWith(`${PREFIX}play`)){
+        const voiceChannel = msg.member.voiceChannel;
+        if(!voiceChannel){
+            var embedplay1 = new Discord.RichEmbed()
+                .setTitle(`Please Connect To A Voice Channel To Play Something!`)
+                .setColor(['#f9fcfc'])
+            return msg.channel.sendEmbed(embedplay1);
+        }
+        const permissions = voiceChannel.permissionsFor(msg.client.user);
+        if(!permissions.has('cn')){
+            var embedplay2 = new Discord.RichEmbed()
+                .setTitle(`I lack the right CONNECT to connect in these Voice Channel!`)
+                .setColor(['#f9fcfc'])
+            return msg.channel.sendEmbed(embedplay2);
+        }
+        if (!permissions.has('SPEAK')){
+            var embedplay3 = new Discord.RichEmbed()
+                .setTitle(`I do not have the right to SPEAK to connect in these Voice Channel!`)
+                .setColor(['#f9fcfc'])
+            return msg.channel.sendEmbed(embedplay3);
+        }
+        
+    
+                      
+        if(url.match(/^https?:\/\/(www.youtube.com|youtube.com)\/playlist(.*)$/)){
+            const playlist = await youtube.getPlaylist(url);
+            const videos = await playlist.getVideos();
+            for(const video of Object.values(videos)){
+                const video2 = await youtube.getVideoByID(video.id);
+                await handleVideo(video2, msg, voiceChannel, true);
+            }
+            var embedplay4 = new Discord.RichEmbed()
+                .setTitle(`Playlist: ${playlist.title} queued!`)
+                .setColor(['#f9fcfc'])
+            return msg.channel.sendEmbed(embedplay4);
+        }else{
+            try{
+                var video = await youtube.getVideo(url);
+            }catch(error){
+                try{
+                    var videos = await youtube.searchVideos(searchString, 10);
+                    let index = 0;
+                    var embedqueue5 = new Discord.RichEmbed()
+                        .setTitle(`Song Play list`)
+                        .setDescription(`
+${videos.map(video2 => `${++index}- ${video2.title}`).join('\n')}
 
-			if (!permissions.has('EMBED_LINKS')) {
-				return msg.channel.sendMessage("**يجب توآفر برمشن `EMBED LINKS`لدي **")
-			}
-
-			if (url.match(/^https?:\/\/(www.youtube.com|youtube.com)\/playlist(.*)$/)) {
-				const playlist = await youtube.getPlaylist(url);
-				const videos = await playlist.getVideos();
-				//by ,$ ReBeL ء , ??#4777 'CODES SERVER'
-				for (const video of Object.values(videos)) {
-					const video2 = await youtube.getVideoByID(video.id); // eslint-disable-line no-await-in-loop
-					await handleVideo(video2, msg, voiceChannel, true); // eslint-disable-line no-await-in-loop
-				}//by ,$ ReBeL ء , ??#4777 'CODES SERVER'
-				return msg.channel.send(` **${playlist.title}** تم الإضآفة إلى قأئمة التشغيل`);
-			} else {
-				try {//by ,$ ReBeL ء , ??#4777 'CODES SERVER'
-
-					var video = await youtube.getVideo(url);
-				} catch (error) {
-					try {//by ,$ ReBeL ء , ??#4777 'CODES SERVER'
-						var videos = await youtube.searchVideos(searchString, 5);
-						let index = 0;
-						const embed1 = new Discord.RichEmbed()
-						.setDescription(`**الرجآء من حضرتك إختيآر رقم المقطع** :
-	${videos.map(video2 => `[**${++index} **] \`${video2.title}\``).join('\n')}`)
-	//by ,$ ReBeL ء , ??#4777 'CODES SERVER'
-						.setFooter("B.N#2019 ©")
-						msg.channel.sendEmbed(embed1).then(message =>{message.delete(20000)})
-						
-						// eslint-disable-next-line max-depth
-						try {
-							var response = await msg.channel.awaitMessages(msg2 => msg2.content > 0 && msg2.content < 11, {
-								maxMatches: 1,
-								time: 15000,
-								errors: ['time']
-							});//by ,$ ReBeL ء , ??#4777 'CODES SERVER'
-						} catch (err) {
-							console.error(err);
-							return msg.channel.send('لم يتم إختيآر مقطع صوتي');
-						}
-						const videoIndex = parseInt(response.first().content);
-						var video = await youtube.getVideoByID(videos[videoIndex - 1].id);
-					} catch (err) {
-						console.error(err);
-						return msg.channel.send(':X: لا يتوفر نتآئج بحث ');
-					}
-				}//by ,$ ReBeL ء , ??#4777 'CODES SERVER'
+Please enter a number between 1-10 on,a Song select!`)
+                .setColor(['#f9fcfc'])
+                    msg.channel.sendEmbed(embedqueue5);
+                    
+                    try{
+                       var response = await msg.channel.awaitMessages(msg2 => msg2.content > 0 && msg2.content < 11, {
+                           maxMatches: 1,
+                           time: 100000,
+                           errors: ['time']
+                       }); 
+                    }catch(err){
+                        console.error(err);
+                        var embedplay6 = new Discord.RichEmbed()
+                            .setTitle(`no or invalid number was entered. Demolition of the song selection!`)
+                            .setColor(['#f9fcfc'])
+                        return msg.channel.sendEmbed(embedplay6);
+                    }
+                    const videoIndex = parseInt(response.first().content);
+                    var video = await youtube.getVideoByID(videos[videoIndex - 1].id);
+                }catch(err){
+                    console.error(err);
+                    var embedplay7 = new Discord.RichEmbed()
+                        .setTitle(`I could find no video!`)
+                        .setColor(['#f9fcfc'])
+                    return msg.channel.sendEmbed(embedplay7);
+                }
+            }
+            return handleVideo(video, msg, voiceChannel);
+        }
     
     } else if(msg.content.startsWith(`${PREFIX}skip`)) {
         if(!msg.member.voiceChannel){
