@@ -32,7 +32,7 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
   } else if(newUserChannel === undefined){
 
     // User leaves a voice channel
-      if(oldMember.id === '346343289861046273'){
+      if(oldMember.id === '507672221972692993'){
           return console.log("BOT");
       }
       else{
@@ -72,7 +72,7 @@ client.on('message', async msg => { // eslint-disable-line
             return msg.channel.sendEmbed(embedplay1);
         }
         const permissions = voiceChannel.permissionsFor(msg.client.user);
-        if(!permissions.has('connect')){
+        if(!permissions.has('CONNECT')){
             var embedplay2 = new Discord.RichEmbed()
                 .setTitle(`I lack the right CONNECT to connect in these Voice Channel!`)
                 .setColor(['#f9fcfc'])
