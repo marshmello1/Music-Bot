@@ -32,7 +32,7 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
   } else if(newUserChannel === undefined){
 
     // User leaves a voice channel
-      if(oldMember.id === '498378677512437762'){
+      if(oldMember.id === '346343289861046273'){
           return console.log("BOT");
       }
       else{
